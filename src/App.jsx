@@ -1,29 +1,38 @@
-import './App.css';
+import React, { useState, useEffect } from 'react';
 
-function App() {
+const API_KEY = 'dea1416da4748a21cb2c8174e1a9446e';
+const cities = ['Prague', 'London','Podbořany'];
+
+const WeatherApp = () => {
+  const [weatherData, setWeatherData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const promises = cities.map(city =>
+        fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`)
+          .then(response => response.json())
+          .then(data => ({ city, data }))
+      );
+
+      const results = await Promise.all(promises);
+      setWeatherData(results);
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src="Octocat.png" className="App-logo" alt="logo" />
-        <p>
-          GitHub Codespaces <span className="heart">♥️</span> React
-        </p>
-        <p className="small">
-          Edit <code>src/App.jsx</code> and save to reload.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </p>
-      </header>
+    <div className="weather-app">
+      {weatherData.map(({ city, data }) => (
+        <div key={city} className="weather-card">
+          <h2>{city}</h2>
+          <p>Temperature: {data.main.temp} °C</p>
+          <p>Humidity: {data.main.humidity}%</p>
+          <p>Wind Speed: {data.wind.speed} m/s</p>
+        </div>
+      ))}
     </div>
   );
-}
+};
 
-export default App;
+export default WeatherApp;
